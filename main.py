@@ -167,7 +167,7 @@ def make_excel(all_orders: list, image_map: dict) -> str:
         cell.alignment = hdr_align; cell.border = bdr
         ws.column_dimensions[get_column_letter(c)].width = w
     ws.row_dimensions[1].height = 28
-    ROW_H = 80
+    ROW_H = 120
     for ri, order in enumerate(all_orders, 2):
         ws.row_dimensions[ri].height = ROW_H
         row_fill = alt_fill if ri % 2 == 0 else None
@@ -187,14 +187,29 @@ def make_excel(all_orders: list, image_map: dict) -> str:
         if img_bytes:
             with PILImage.open(io.BytesIO(img_bytes)) as im:
                 im = im.convert("RGB")
-                target_w, target_h = im.width, im.height
+                target_h = int(ROW_H * 1.33)  # แปลง points → pixels
+ratio = target_h / im.height
+target_w = int(im.width * ratio)
+im = im.resize((target_w, target_h), PILImage.LANCZOS)
+buf = io.BytesIO()
+im.save(buf, "JPEG", quality=95)
+buf.seek(0)
+             img_bytes = image_map.get(order.get("_file",""))
+        if img_bytes:
+            with PILImage.open(io.BytesIO(img_bytes)) as im:
+                im = im.convert("RGB")
+                target_h = int(ROW_H * 1.33)
+                ratio = target_h / im.height
+                target_w = int(im.width * ratio)
+                im = im.resize((target_w, target_h), PILImage.LANCZOS)
                 buf = io.BytesIO()
-                im.save(buf, "JPEG", quality=90)
+                im.save(buf, "JPEG", quality=95)
                 buf.seek(0)
             tmp = f"/tmp/img_{ri}.jpg"
             with open(tmp, "wb") as f: f.write(buf.read())
             xl_img = XLImage(tmp)
-            xl_img.width = target_w; xl_img.height = target_h
+            xl_img.width = target_w
+            xl_img.height = target_h
             ws.add_image(xl_img, f"A{ri}")
     sr = len(all_orders) + 2
     ws.cell(sr, 4, "รวมทั้งหมด").font = Font(name="Arial", bold=True, size=11)
