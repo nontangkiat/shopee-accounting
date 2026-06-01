@@ -187,10 +187,7 @@ def make_excel(all_orders: list, image_map: dict) -> str:
         if img_bytes:
             with PILImage.open(io.BytesIO(img_bytes)) as im:
                 im = im.convert("RGB")
-                target_h = int(ROW_H * 1.2)
-                ratio = target_h / im.height
-                target_w = int(im.width * ratio)
-                im = im.resize((target_w, target_h), PILImage.LANCZOS)
+                target_w, target_h = im.width, im.height
                 buf = io.BytesIO()
                 im.save(buf, "JPEG", quality=90)
                 buf.seek(0)
