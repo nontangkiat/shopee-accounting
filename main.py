@@ -138,7 +138,7 @@ def extract_data(image_bytes: bytes, media_type: str) -> list:
     b64 = base64.standard_b64encode(image_bytes).decode()
     msg = client.messages.create(
         model="claude-sonnet-4-5",
-        max_tokens=1000,
+        max_tokens=4096,
         messages=[{"role": "user", "content": [
             {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64}},
             {"type": "text", "text": PROMPT}
