@@ -167,7 +167,7 @@ def make_excel(all_orders: list, image_map: dict) -> str:
         cell.alignment = hdr_align; cell.border = bdr
         ws.column_dimensions[get_column_letter(c)].width = w
     ws.row_dimensions[1].height = 28
-    ROW_H = 120
+    ROW_H = 300
     for ri, order in enumerate(all_orders, 2):
         ws.row_dimensions[ri].height = ROW_H
         row_fill = alt_fill if ri % 2 == 0 else None
@@ -185,7 +185,7 @@ def make_excel(all_orders: list, image_map: dict) -> str:
                 horizontal="center" if c in (1,6) else "right" if c in (7,8,9,10) else "left")
         img_bytes = image_map.get(order.get("_file",""))
         if img_bytes:
-            DISPLAY_H = 160
+            DISPLAY_H = 400
             with PILImage.open(io.BytesIO(img_bytes)) as im:
                 im = im.convert("RGB")
                 orig_w, orig_h = im.size
