@@ -185,20 +185,20 @@ def make_excel(all_orders: list, image_map: dict) -> str:
                 horizontal="center" if c in (1,6) else "right" if c in (7,8,9,10) else "left")
         img_bytes = image_map.get(order.get("_file",""))
         if img_bytes:
+            DISPLAY_H = 160
             with PILImage.open(io.BytesIO(img_bytes)) as im:
                 im = im.convert("RGB")
-                target_h = int(ROW_H * 1.33)
-                ratio = target_h / im.height
-                target_w = int(im.width * ratio)
-                im = im.resize((target_w, target_h), PILImage.LANCZOS)
+                orig_w, orig_h = im.size
+                ratio = DISPLAY_H / orig_h
+                display_w = int(orig_w * ratio)
                 buf = io.BytesIO()
                 im.save(buf, "JPEG", quality=95)
                 buf.seek(0)
             tmp = f"/tmp/img_{ri}.jpg"
             with open(tmp, "wb") as f: f.write(buf.read())
             xl_img = XLImage(tmp)
-            xl_img.width = target_w
-            xl_img.height = target_h
+            xl_img.width = display_w
+            xl_img.height = DISPLAY_H
             ws.add_image(xl_img, f"A{ri}")
     sr = len(all_orders) + 2
     ws.cell(sr, 4, "รวมทั้งหมด").font = Font(name="Arial", bold=True, size=11)
